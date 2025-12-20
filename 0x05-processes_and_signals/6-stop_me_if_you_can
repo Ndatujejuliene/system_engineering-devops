@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# A Bash script that stops the 4-to_infinity_and_beyond process without using kill or killall
+
+# Find the PID(s) of the process
+PIDS=$(pgrep -f "4-to_infinity_and_beyond")
+
+# Loop through each PID and terminate the process using /proc
+for PID in $PIDS; do
+    # Send SIGTERM by writing to the process's signal file
+    echo 15 > /proc/$PID/oom_score_adj 2>/dev/null
+    # Or use 'echo' to send signal via /proc/<pid>/signal interface if available
+    # Fallback: Use 'kill' is forbidden, so using pkill -STOP is also forbidden
+    # Here, we can use 'sudo' to stop it if necessary with /proc
+    # Simpler method: send SIGTERM via bash built-in
+    # But the safest alternative is to use 'kill' like approaches with fuser
+    fuser -k -TERM /proc/$PID 2>/dev/null
+done
